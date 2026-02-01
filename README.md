@@ -42,7 +42,7 @@ await device.push_state_update()
 **Based on the following work**
 
 - [Gree Remote by tomikaa87](https://github.com/tomikaa87/gree-remote)
-- [greeclimate-js](https://github.com/yourusername/greeclimate-js) - Cloud protocol reverse engineering
+- [greeclimate-js](https://github.com/davo22/greeclimate-js) - Cloud protocol reverse engineering
 
 ## Getting the package
 
