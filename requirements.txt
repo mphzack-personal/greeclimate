@@ -1,4 +1,4 @@
-netifaces
-pycryptodome~=3.10
-aiohttp>=3.8.0
-aiomqtt>=1.0.0
+netifaces>=0.11.0
+pycryptodome>=3.23.0
+aiohttp>=3.13.0
+aiomqtt>=2.5.0
