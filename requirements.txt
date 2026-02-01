@@ -1,2 +1,4 @@
 netifaces
 pycryptodome~=3.10
+aiohttp>=3.8.0
+aiomqtt>=1.0.0

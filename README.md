@@ -11,9 +11,38 @@ Discover, connect and control Gree based mini-split systems.
 
 _If you have tested and know of others systems that work, please fork and submit a PR with the make and model_
 
+## ⭐ New: Cloud-Only Device Support
+
+This fork adds support for **cloud-only devices** that don't respond to local UDP discovery. These devices only work through Gree Cloud and MQTT.
+
+**Features:**
+- 🌐 Authenticate with Gree Cloud API
+- 🔍 Discover cloud-only devices
+- 📡 Control via MQTT broker
+- 🌍 Support for all regions (Europe, US, Asia, etc.)
+- 🔒 Both CipherV1 (ECB) and CipherV2 (GCM)
+
+See **[CLOUD_SUPPORT.md](CLOUD_SUPPORT.md)** for detailed documentation and examples.
+
+**Quick Example:**
+```python
+from greeclimate.cloud_discovery import CloudDiscovery
+
+discovery = CloudDiscovery('email@example.com', 'password', 'Europe')
+devices = await discovery.scan()
+
+device = await discovery.create_device(devices[0])
+await device.bind()
+
+device.power = True
+device.target_temperature = 24
+await device.push_state_update()
+```
+
 **Based on the following work**
 
 - [Gree Remote by tomikaa87](https://github.com/tomikaa87/gree-remote)
+- [greeclimate-js](https://github.com/yourusername/greeclimate-js) - Cloud protocol reverse engineering
 
 ## Getting the package
 
@@ -21,6 +50,10 @@ The easiest way to grab **greeclimate** is through PyPI
 `pip3 install greeclimate`
 
 ## Use Gree Climate
+
+### Local Devices (UDP)
+
+For devices that respond to local network discovery:
 
 ### Finding and binding to devices
 
@@ -85,6 +118,39 @@ device.target_humidity = 45
 # Send the state update to the HVAC
 await device.push_state_update()
 ```
+
+### Cloud-Only Devices (MQTT)
+
+For devices that only work through Gree Cloud (don't respond to local discovery):
+
+```python
+from greeclimate.cloud_discovery import CloudDiscovery
+
+# Discover cloud devices
+discovery = CloudDiscovery(
+    username='your_email@example.com',
+    password='your_password',
+    server='Europe'  # or 'North American', 'Asia', etc.
+)
+
+devices = await discovery.scan()
+
+# Connect to device
+device = await discovery.create_device(devices[0])
+await device.bind()
+await device.update_state()
+
+# Control device
+device.power = True
+device.target_temperature = 24
+await device.push_state_update()
+
+# Cleanup
+await device.close()
+await discovery.close()
+```
+
+**See [CLOUD_SUPPORT.md](CLOUD_SUPPORT.md) for complete cloud device documentation.**
 
 ## Debugging
 
