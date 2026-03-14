@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Gree Cloud Setup",
+        "description": "Enter your Gree+ app credentials to connect to your Gree devices.",
+        "data": {
+          "username": "Email / Username",
+          "password": "Password",
+          "region": "Server Region"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Gree Cloud servers",
+      "invalid_auth": "Invalid username or password",
+      "unknown": "An unexpected error occurred"
+    },
+    "abort": {
+      "already_configured": "Account is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gree Cloud Options",
+        "description": "Configure Gree Cloud integration options."
+      }
+    }
+  },
+  "entity": {
+    "switch": {
+      "power": {
+        "name": "Power"
+      }
+    }
+  }
+}
