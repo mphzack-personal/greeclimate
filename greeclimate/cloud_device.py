@@ -83,6 +83,7 @@ class CloudDevice(Device):
         self._device_key = device_key
         self._cipher_version = cipher_version
         self._command_timeout = command_timeout
+        self._client_id = "3596080102819754P"  # Default client ID for power commands
         
         # Setup cipher based on version
         if cipher_version == 2:
@@ -258,19 +259,34 @@ class CloudDevice(Device):
         # Setup response event
         self._response_event = asyncio.Event()
         
-        # Send command
-        command = {
-            't': 'cmd',
-            'opt': opt,
-            'p': p
-        }
-        
-        await self._mqtt_client.publish_command(
-            self._parent_mac,
-            command,
-            self.device_cipher,
-            self._child_mac
-        )
+        # Check if this is a power-only command - use specialized function
+        if opt == ["Pow"] and len(p) == 1:
+            power = bool(p[0])
+            # Get temperature from HeWatOutTemSet property, default to 36 if not set
+            temperature = self._properties.get("HeWatOutTemSet", 36)
+            
+            await self._mqtt_client.publish_power_with_temperature(
+                self._parent_mac,
+                power,
+                temperature,
+                self._client_id,
+                self.device_cipher,
+                self._child_mac
+            )
+        else:
+            # Send command
+            command = {
+                't': 'cmd',
+                'opt': opt,
+                'p': p
+            }
+            
+            await self._mqtt_client.publish_command(
+                self._parent_mac,
+                command,
+                self.device_cipher,
+                self._child_mac
+            )
         
         # Wait for response
         try:
