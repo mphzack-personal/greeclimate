@@ -36,6 +36,8 @@ try:
 except ImportError:
     import asyncio_mqtt as aiomqtt
 
+from greeclimate.payload import generate_payload
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -263,6 +265,64 @@ class GreeMqttClient:
         payload = json.dumps(message)
         
         _LOGGER.debug(f"Publishing to {topic}: {message.get('cid')}")
+        await self._client.publish(topic, payload, qos=1)
+    
+    async def publish_power_with_temperature(
+        self,
+        device_mac: str,
+        power: bool,
+        temperature: int,
+        client_id: str,
+        cipher: Any,
+        target_device_mac: Optional[str] = None
+    ) -> None:
+        """Publish power and temperature command to device
+        
+        Args:
+            device_mac: Device MAC address (used for topic)
+            power: True to turn on, False to turn off
+            temperature: Temperature value as integer (e.g., 36 for 36 degrees)
+            client_id: Client ID string for the command payload
+            cipher: Cipher instance (CipherV1 or CipherV2)
+            target_device_mac: Optional target device MAC for child devices (used in tcid)
+        """
+        if not self._connected:
+            raise Exception("Not connected to MQTT broker")
+        
+        # Generate payload using the payload module
+        command_payload = generate_payload(power, temperature, client_id)
+        
+        # Encrypt command
+        encrypted_result = cipher.encrypt(command_payload)
+        if isinstance(encrypted_result, tuple):
+            encrypted, tag = encrypted_result
+        else:
+            encrypted = encrypted_result
+            tag = None
+        
+        # Detect parent MAC for topic
+        parent_mac = self._detect_parent_mac(device_mac)
+        
+        # Create message
+        message = {
+            'cid': str(random.randint(1000000000, 9999999999)),
+            'i': self.sequence_number,
+            'pack': encrypted,
+            't': 'pack',
+            'tcid': target_device_mac or device_mac,
+            'uid': self.user_id,
+        }
+        
+        # Add tag if present (GCM encryption)
+        if tag:
+            message['tag'] = tag
+        
+        self.sequence_number += 1
+        
+        topic = f"request/{parent_mac}"
+        payload = json.dumps(message)
+        
+        _LOGGER.debug(f"Publishing power/temperature to {topic}: power={power}, temp={temperature}")
         await self._client.publish(topic, payload, qos=1)
     
     def add_message_handler(self, handler: Callable[[str, MqttDeviceMessage], None]) -> None:
