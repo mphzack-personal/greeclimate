@@ -3,8 +3,8 @@ import base64
 import json
 import re
 
-def generate_payload(power: bool, temperature: int, client_id: str) -> str:
-    """Generate a complete JSON payload for device control.
+def generate_payload(power: bool, temperature: int, client_id: str) -> dict:
+    """Generate a complete payload dict for device control.
     
     Args:
         power: True to turn on, False to turn off
@@ -12,7 +12,7 @@ def generate_payload(power: bool, temperature: int, client_id: str) -> str:
         client_id: Client ID string (digits only, trailing non-digits will be removed)
     
     Returns:
-        JSON string with the complete payload
+        Dict with the complete payload (will be JSON-serialized by cipher)
     """
     # Remove trailing non-digit characters from client_id
     clean_client_id = re.sub(r'\D+$', '', client_id)
@@ -22,7 +22,7 @@ def generate_payload(power: bool, temperature: int, client_id: str) -> str:
     hex01 = encode_command(power, temperature)
     pow_value = 1 if power else 0
     
-    # Build payload
+    # Build payload - return dict, not JSON string (cipher handles serialization)
     payload = {
         "t": "binCmd",
         "hex01": hex01,
@@ -30,7 +30,7 @@ def generate_payload(power: bool, temperature: int, client_id: str) -> str:
         "fragment": [[1, 4, 2, pow_value]]
     }
     
-    return json.dumps(payload)
+    return payload
 
 
 def encode_command(power: bool, temperature: int) -> str:
