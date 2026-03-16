@@ -83,7 +83,7 @@ class CloudDevice(Device):
         self._device_key = device_key
         self._cipher_version = cipher_version
         self._command_timeout = command_timeout
-        self._client_id = "3612817747919403"  # Default client ID for power commands
+        self._client_id = "3655820309913767"  # Default client ID for power commands
         
         # Setup cipher based on version
         if cipher_version == 2:

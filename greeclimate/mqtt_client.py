@@ -305,8 +305,8 @@ class GreeMqttClient:
         
         # Create message
         message = {
-            'cid': str(random.randint(1000000000, 9999999999)),
-            'i': self.sequence_number,
+            'cid': "3_1_" + str(random.randint(1000000000, 9999999999)),
+            'i': 0,
             'pack': encrypted,
             't': 'pack',
             'tcid': target_device_mac or device_mac,
